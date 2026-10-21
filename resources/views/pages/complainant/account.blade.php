@@ -14,7 +14,6 @@
             $setupLabel = null;
         }
     }
-    $pushEnabled = (bool) ($pushEnabled ?? false);
 @endphp
 <div
     class="min-h-full"
@@ -24,7 +23,6 @@
         aliasError: '',
         showReset: false,
         showLogout: false,
-        pushEnabled: {{ $pushEnabled ? 'true' : 'false' }},
         init() { this.aliasInput = this.$root.dataset.alias || ''; },
         startEdit() { this.aliasInput = this.$root.dataset.alias || ''; this.aliasError = ''; this.editingAlias = true; },
         validateAlias() {
@@ -198,42 +196,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-lg border-0 shadow-sm bg-card text-card-foreground">
-                    <div class="flex flex-col space-y-1.5 p-6 pb-3 border-b bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-[#1D9E75]/15 dark:to-teal-500/10">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <h2 class="text-base font-semibold flex items-center gap-2 leading-none">
-                                    <x-lucide-smartphone class="h-4 w-4 text-[#1D9E75]" />
-                                    Mobile Push (PWA)
-                                </h2>
-                                <p class="text-xs text-muted-foreground mt-1">
-                                    Lock-screen alerts when SpeakUp GC is closed or in the background.
-                                </p>
-                            </div>
-                            <span
-                                class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-                                :class="pushEnabled ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
-                            >
-                                <span x-text="pushEnabled ? 'On' : 'Off'">{{ $pushEnabled ? 'On' : 'Off' }}</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-6 pt-4 space-y-3">
-                        <p class="text-xs text-gray-600 leading-relaxed">
-                            <strong>iPhone:</strong> Safari → Share → Add to Home Screen, open the app, then enable push
-                            (iOS 16.4+). <strong>Android:</strong> Chrome → Install app / Add to Home screen.
-                        </p>
-                        <button
-                            type="button"
-                            @click="pushEnabled = !pushEnabled"
-                            class="inline-flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium"
-                            :class="pushEnabled ? 'bg-white text-gray-800 border border-gray-200 hover:bg-gray-50' : 'bg-[#1D9E75] hover:bg-[#178F65] text-white'"
-                        >
-                            <x-lucide-smartphone class="h-3.5 w-3.5 mr-2" />
-                            <span x-text="pushEnabled ? 'Disable push on this device' : 'Enable push on this device'">{{ $pushEnabled ? 'Disable push on this device' : 'Enable push on this device' }}</span>
-                        </button>
-                    </div>
-                </div>
+                @include('partials.push-settings')
 
                 <div class="rounded-lg border-0 shadow-sm bg-card text-card-foreground">
                     <div class="flex flex-col space-y-1.5 p-6 pb-3 border-b">

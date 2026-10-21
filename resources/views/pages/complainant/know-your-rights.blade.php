@@ -174,7 +174,7 @@
     ];
 @endphp
 <div
-    class="min-h-full w-full -mt-4 md:mt-0"
+    class="min-h-full w-full"
     x-data="{
         tab: '{{ $tab }}',
         setTab(id) {
@@ -185,7 +185,7 @@
         }
     }"
 >
-    <div class="pt-4 md:pt-0 mb-4">
+    <div class="mb-4">
         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div class="flex items-start gap-3 min-w-0">
                 <div class="rounded-lg p-2 shrink-0 bg-[#DCFCE7]">
@@ -210,7 +210,7 @@
         </div>
     </div>
 
-    <div class="md:hidden sticky top-0 z-30 -mx-6 bg-white border-b border-gray-200">
+    <div class="sticky top-0 z-30 -mx-6 border-b border-gray-200 bg-white dark:border-border dark:bg-background md:hidden">
         <div class="px-2">
             <div class="flex overflow-x-auto scrollbar-none">
                 @foreach ($tabs as $item)

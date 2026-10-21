@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\VerifyAccount;
 use App\Models\Representative;
 use App\Models\User;
 use App\Support\SpeakUp;
@@ -142,6 +143,7 @@ class SessionController extends Controller
 
         return response()->json([
             'verificationEmailSent' => $emailed,
+            'verificationLink' => $emailed ? null : $link,
         ]);
     }
 
@@ -190,6 +192,7 @@ class SessionController extends Controller
 
         return response()->json([
             'emailed' => $emailed,
+            'verificationLink' => $emailed ? null : $link,
         ]);
     }
 
@@ -232,15 +235,14 @@ class SessionController extends Controller
     private function sendVerificationMail(User $user, string $link): bool
     {
         try {
-            Mail::raw(
-                "Verify your SpeakUp GC account:\n\n{$link}\n\nThis link expires in 24 hours.",
-                function ($message) use ($user) {
-                    $message->to($user->email)->subject('Verify your SpeakUp GC email');
-                }
-            );
+            Mail::mailer('verification')
+                ->to($user->email)
+                ->send(new VerifyAccount($user, $link));
 
             return true;
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            report($exception);
+
             return false;
         }
     }

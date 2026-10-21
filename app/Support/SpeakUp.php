@@ -59,6 +59,29 @@ class SpeakUp
         return $missing === [] ? null : 'Password does not meet security requirements: '.implode('. ', $missing);
     }
 
+    /** Same rule as the React alias helper: Alias, then Alias(1), Alias(2), … */
+    public static function uniqueAlias(string $desired, ?int $exceptUserId = null): string
+    {
+        $base = trim($desired);
+        $taken = User::query()
+            ->when($exceptUserId, fn ($query) => $query->where('id', '!=', $exceptUserId))
+            ->whereNotNull('alias')
+            ->pluck('alias')
+            ->map(fn ($alias) => mb_strtolower(trim((string) $alias)))
+            ->flip();
+
+        if (! $taken->has(mb_strtolower($base))) {
+            return $base;
+        }
+
+        $n = 1;
+        while ($taken->has(mb_strtolower($base.'('.$n.')'))) {
+            $n++;
+        }
+
+        return $base.'('.$n.')';
+    }
+
     /** In-app alert for admins and CODI when a complaint is filed. */
     public static function notifyStaffOfComplaint(Complaint $complaint): void
     {

@@ -189,8 +189,13 @@
                 </div>
             </div>
         </header>
-        <main class="flex-1 overflow-y-auto bg-white px-6 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-4 dark:bg-background lg:px-8 lg:pb-8 lg:pt-6">
-            {{ $slot }}
+        {{-- Top padding lives on an inner wrapper, not the scrollport. Padding on the
+             scrolling <main> leaves a gap above position:sticky, so the Rights tabs
+             looked like they were floating over the card. --}}
+        <main class="flex-1 overflow-y-auto bg-white px-6 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-0 dark:bg-background lg:px-8 lg:pb-8 lg:pt-6">
+            <div class="pt-4 lg:pt-0">
+                {{ $slot }}
+            </div>
         </main>
     </div>
 
@@ -219,4 +224,7 @@
         </div>
     </div>
 </div>
+@if (! $user->profile_setup_complete && ! $user->isStaff())
+    @include('partials.profile-setup-modal')
+@endif
 </x-layouts.app>

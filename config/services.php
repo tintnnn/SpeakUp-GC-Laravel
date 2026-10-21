@@ -43,6 +43,7 @@ return [
         'messaging_sender_id' => env('FIREBASE_MESSAGING_SENDER_ID'),
         'app_id' => env('FIREBASE_APP_ID'),
         'measurement_id' => env('FIREBASE_MEASUREMENT_ID'),
+        'vapid_key' => env('FIREBASE_VAPID_KEY'),
     ],
 
     'slack' => [

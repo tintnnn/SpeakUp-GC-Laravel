@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\CaseQueueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ManageController;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'pages.landing')->name('home');
+Route::get('/firebase-messaging-sw.js', [AccountController::class, 'messagingServiceWorker'])->name('push.worker');
 
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
@@ -108,11 +110,15 @@ Route::middleware(['auth', 'student'])->group(function () {
         ]);
     })->name('account.update');
     Route::post('/account/password-reset', [PasswordResetController::class, 'send'])->middleware('throttle:6,1');
+    Route::post('/account/setup', [AccountController::class, 'completeSetup'])->name('account.setup');
     Route::view('/know-your-rights', 'pages.complainant.know-your-rights')->name('rights');
     Route::view('/learn', 'pages.complainant.learn-hub')->name('learn');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::post('/push-token', [AccountController::class, 'storePushToken'])->name('push.store');
+    Route::delete('/push-token', [AccountController::class, 'destroyPushToken'])->name('push.destroy');
+
     Route::get('/evidence/{attachment}', [ComplaintController::class, 'evidence'])->name('evidence.show');
     Route::get('/chat-files/{attachment}', [ChatController::class, 'file'])->name('chat.file');
     Route::get('/case-chat/{complaint}', [ChatController::class, 'show'])->name('case-chat');

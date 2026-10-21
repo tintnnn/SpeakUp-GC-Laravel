@@ -49,6 +49,19 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
+        // Account verification only. Locally this is Mailpit (port 1025).
+        // Set MAIL_VERIFICATION_* to a real SMTP server to deliver to inboxes.
+        'verification' => [
+            'transport' => 'smtp',
+            'scheme' => env('MAIL_VERIFICATION_SCHEME', env('MAIL_SCHEME')),
+            'host' => env('MAIL_VERIFICATION_HOST', env('MAIL_HOST', '127.0.0.1')),
+            'port' => env('MAIL_VERIFICATION_PORT', env('MAIL_PORT', 1025)),
+            'username' => env('MAIL_VERIFICATION_USERNAME', env('MAIL_USERNAME')),
+            'password' => env('MAIL_VERIFICATION_PASSWORD', env('MAIL_PASSWORD')),
+            'timeout' => 15,
+            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
