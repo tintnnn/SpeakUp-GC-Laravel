@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\VerifyAccount;
 use App\Models\Representative;
 use App\Models\User;
 use App\Support\SpeakUp;
@@ -143,7 +142,6 @@ class SessionController extends Controller
 
         return response()->json([
             'verificationEmailSent' => $emailed,
-            'verificationLink' => $emailed ? null : $link,
         ]);
     }
 
@@ -179,7 +177,7 @@ class SessionController extends Controller
         $user = $this->userFromCredentials($request);
 
         if ($user->email_verified_at) {
-            return response()->json(['emailed' => true]);
+            return response()->json(['emailed' => false, 'alreadyVerified' => true]);
         }
 
         $link = URL::temporarySignedRoute(
@@ -192,7 +190,6 @@ class SessionController extends Controller
 
         return response()->json([
             'emailed' => $emailed,
-            'verificationLink' => $emailed ? null : $link,
         ]);
     }
 
@@ -235,13 +232,23 @@ class SessionController extends Controller
     private function sendVerificationMail(User $user, string $link): bool
     {
         try {
-            Mail::mailer('verification')
-                ->to($user->email)
-                ->send(new VerifyAccount($user, $link));
+            $name = $user->display_name ?: (strstr($user->email, '@', true) ?: 'there');
+            $appUrl = rtrim((string) config('app.url'), '/');
+            $logoUrl = str_contains($appUrl, 'localhost') || str_contains($appUrl, '127.0.0.1')
+                ? null
+                : $appUrl.'/LOGO.png';
+
+            Mail::send('mail.verify-email', [
+                'toName' => $name,
+                'link' => $link,
+                'logoUrl' => $logoUrl,
+            ], function ($message) use ($user) {
+                $message->to($user->email)->subject('Verify your email — SpeakUp GC');
+            });
 
             return true;
-        } catch (\Throwable $exception) {
-            report($exception);
+        } catch (\Throwable $e) {
+            report($e);
 
             return false;
         }

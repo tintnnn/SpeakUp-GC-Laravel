@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Complaint;
 use App\Models\Representative;
 use App\Models\User;
+use App\Support\SpeakUp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ManageController extends Controller
@@ -241,12 +244,55 @@ class ManageController extends Controller
         return back()->with('toast', ['title' => 'Video deleted', 'description' => 'It was removed from the learning hub.']);
     }
 
+    public function settings(Request $request)
+    {
+        $this->adminOnly($request);
+
+        return view('pages.admin.settings', [
+            'maintenanceMode' => SpeakUp::flag('maintenance_mode'),
+            'chatbotEnabled' => SpeakUp::flag('chatbot_enabled'),
+            'locationCount' => DB::table('locations')->count(),
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+        abort_unless($user && $user->provider !== 'google', 403);
+
+        $data = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'confirmed'],
+        ]);
+
+        if (! Hash::check($data['current_password'], (string) $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => 'Current password is incorrect.',
+            ]);
+        }
+
+        if ($message = SpeakUp::passwordError($data['password'])) {
+            throw ValidationException::withMessages(['password' => $message]);
+        }
+
+        $user->forceFill(['password' => $data['password']])->save();
+
+        return back()->with('toast', [
+            'title' => 'Password updated',
+            'description' => 'Use the new password the next time you sign in.',
+        ]);
+    }
+
     public function saveSettings(Request $request)
     {
         $this->adminOnly($request);
+        $request->merge([
+            'maintenance_mode' => $request->boolean('maintenance_mode'),
+            'chatbot_enabled' => $request->boolean('chatbot_enabled'),
+        ]);
         $data = $request->validate([
-            'maintenance_mode' => ['nullable', 'boolean'],
-            'chatbot_enabled' => ['nullable', 'boolean'],
+            'maintenance_mode' => ['required', 'boolean'],
+            'chatbot_enabled' => ['required', 'boolean'],
         ]);
         foreach (['maintenance_mode', 'chatbot_enabled'] as $key) {
             DB::table('system_settings')->updateOrInsert(

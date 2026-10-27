@@ -2,15 +2,15 @@
 @php
     $shell = 'w-full px-4 sm:px-6 lg:px-10 xl:px-16 2xl:px-24';
     $quickActions = [
-        ['icon' => 'clipboard-list', 'title' => 'File a Complaint', 'desc' => 'Submit securely under RA 11313 & RA 7877.'],
-        ['icon' => 'activity', 'title' => 'Track Your Case', 'desc' => 'Real-time status updates at every milestone.'],
-        ['icon' => 'message-circle', 'title' => 'Direct Messaging', 'desc' => 'Encrypted chat with DEIU administrators.'],
-        ['icon' => 'book-open', 'title' => 'Know Your Rights', 'desc' => 'Guides, policies, and legal protections.'],
+        ['icon' => 'clipboard-list', 'title' => 'File a complaint', 'desc' => 'Tell the school what happened.'],
+        ['icon' => 'activity', 'title' => 'Track your case', 'desc' => 'See each update on your complaint.'],
+        ['icon' => 'message-circle', 'title' => 'Message the office', 'desc' => 'Talk with the person handling your case.'],
+        ['icon' => 'book-open', 'title' => 'Know your rights', 'desc' => 'Read what the school and the law say.'],
     ];
     $steps = [
-        ['n' => '01', 'title' => 'Submit', 'desc' => 'Fill out the secure form. Stay anonymous or identify yourself.'],
-        ['n' => '02', 'title' => 'Track', 'desc' => 'Get real-time updates at each stage of your case.'],
-        ['n' => '03', 'title' => 'Resolve', 'desc' => 'Communicate with DEIU through encrypted messaging.'],
+        ['n' => '01', 'title' => 'Submit', 'desc' => 'Write what happened. Use your name, or keep it hidden.'],
+        ['n' => '02', 'title' => 'Track', 'desc' => 'See where your complaint is, from filing to a decision.'],
+        ['n' => '03', 'title' => 'Resolve', 'desc' => 'Message the school office about your case.'],
     ];
     $didYouKnow = [
         ['icon' => 'shield-check', 'color' => 'green', 'title' => 'Safe Spaces Act (RA 11313)', 'points' => ['Protects from gender-based harassment in public & online spaces', 'Covers catcalling, unwanted remarks, and cyber harassment', 'Schools must establish complaint mechanisms']],
@@ -23,9 +23,9 @@
         'red' => ['bg' => 'bg-red-50 dark:bg-red-500/15', 'icon' => 'text-red-600 dark:text-red-400', 'check' => 'text-red-600 dark:text-red-400'],
     ];
     $trustTags = [
-        ['icon' => 'shield-check', 'label' => 'Encrypted'],
-        ['icon' => 'eye-off', 'label' => 'Anonymous'],
-        ['icon' => 'users', 'label' => 'DEIU managed'],
+        ['icon' => 'shield-check', 'label' => 'Private'],
+        ['icon' => 'eye-off', 'label' => 'You can hide your name'],
+        ['icon' => 'users', 'label' => 'Handled by the school office'],
     ];
     $authParam = request()->query('auth');
     $initialView = $authParam === 'login' ? 'login' : ($authParam === 'signup' ? 'signup-email' : null);
@@ -40,13 +40,13 @@
         <div class="{{ $shell }} pt-4">
             <div class="flex h-14 items-center justify-between bg-white/90 dark:bg-[#111614]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl px-5 shadow-lg shadow-gray-900/5 dark:shadow-black/40">
                 <a href="/" class="flex items-center gap-2.5 min-w-0">
-                    <img src="/LOGO.png" alt="SpeakUp GC" class="h-10 w-10 shrink-0 object-contain">
                     <img src="/GC.png" alt="Gordon College" class="h-10 w-10 shrink-0 object-contain">
+                    <img src="/LOGO.png" alt="SpeakUp GC" class="h-10 w-10 shrink-0 object-contain">
                     <span class="text-lg font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">SpeakUp GC</span>
                 </a>
                 <nav class="hidden lg:flex items-center gap-1">
                     <a href="#" @click.prevent="window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-3 py-1.5 text-sm font-medium text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 transition-colors">Home</a>
-                    <a href="/#features" class="px-3 py-1.5 text-sm font-medium text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 transition-colors">Features</a>
+                    <a href="/#steps" class="px-3 py-1.5 text-sm font-medium text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 transition-colors">How it works</a>
                     <a href="/#about" class="px-3 py-1.5 text-sm font-medium text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 transition-colors">About</a>
                 </nav>
                 <div class="hidden lg:flex items-center gap-2">
@@ -61,7 +61,7 @@
             </div>
             <div x-show="isMenuOpen" x-cloak class="lg:hidden mt-2 bg-white/95 dark:bg-[#111614]/95 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl shadow-lg overflow-hidden">
                 <nav class="flex flex-col p-3 gap-1">
-                    <a href="/#features" class="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-100" @click="isMenuOpen = false">Features</a>
+                    <a href="/#steps" class="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-100" @click="isMenuOpen = false">How it works</a>
                     <a href="/#about" class="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-100" @click="isMenuOpen = false">About</a>
                     <div class="border-t border-gray-100 mt-1 pt-2 flex flex-col gap-2">
                         <div class="flex items-center justify-between px-1 py-1">
@@ -92,14 +92,14 @@
                 <div class="max-w-2xl">
                     <h1 class="text-4xl sm:text-5xl xl:text-6xl font-black tracking-tight text-gray-900 mb-4">SpeakUp GC</h1>
                     <p class="text-base sm:text-lg text-gray-500 leading-relaxed mb-7">
-                        A confidential platform for Gordon College students to file complaints, track cases, and communicate directly with DEIU — anonymously if you choose. Protected under Philippine law.
+                        A private place for Gordon College students to file a complaint, see what happens next, and talk with the school office. You can hide your name if you want.
                     </p>
                     <div class="flex flex-wrap gap-3 mb-8">
                         <button type="button" @click="openWalkthrough()" class="inline-flex items-center gap-2 bg-[#1D9E75] hover:bg-[#178F65] text-white font-semibold text-sm px-6 py-3 rounded-xl shadow-lg shadow-[#1D9E75]/20 transition-colors">
                             Get Started <x-lucide-arrow-right class="w-4 h-4" />
                         </button>
-                        <a href="#about" class="inline-flex items-center gap-1.5 border border-gray-300 dark:border-white/15 text-gray-700 font-medium text-sm px-6 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                            Learn more
+                        <a href="#steps" class="inline-flex items-center gap-1.5 border border-gray-300 dark:border-white/15 text-gray-700 font-medium text-sm px-6 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            See the 3 steps
                         </a>
                     </div>
                     <div class="flex flex-wrap gap-5">
@@ -114,6 +114,9 @@
                 {{-- Right: Dashboard Illustration --}}
                 <div class="hidden lg:block w-full max-w-xl ml-auto">
                     <div class="bg-white dark:bg-[#18241f] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.55)] border border-gray-200 dark:border-white/10 overflow-hidden">
+                        <div class="bg-amber-50 dark:bg-amber-500/15 border-b border-amber-200 dark:border-amber-400/30 px-5 py-2">
+                            <p class="text-xs font-semibold text-amber-800 dark:text-amber-200">Example only. This is not your case.</p>
+                        </div>
                         <div class="bg-green-50 dark:bg-[#1D9E75]/15 border-b border-green-200 dark:border-[#1D9E75]/25 px-5 py-3 flex items-start gap-3">
                             <div class="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                                 <x-lucide-circle-check-big class="w-4 h-4 text-white" />
@@ -127,12 +130,12 @@
                             <div class="bg-gradient-to-br from-gray-50 to-white dark:from-[#141a18] dark:to-[#1c2a24] border border-gray-200 dark:border-white/10 rounded-xl p-5">
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
-                                        <p class="text-[10px] font-bold text-[#1D9E75] uppercase tracking-wide">Active Case</p>
+                                        <p class="text-[10px] font-bold text-[#1D9E75] uppercase tracking-wide">Sample case</p>
                                         <p class="text-xl font-black text-gray-900 mt-0.5">CASE-002</p>
                                         <p class="text-xs text-gray-500 mt-0.5">Sexual harassment in classroom</p>
                                     </div>
                                     <div class="bg-[#1D9E75] rounded-lg px-3 py-1.5">
-                                        <p class="text-[10px] text-white font-bold">Anonymous Mode</p>
+                                        <p class="text-[10px] text-white font-bold">Name hidden</p>
                                     </div>
                                 </div>
                                 <div class="space-y-2.5">
@@ -172,18 +175,42 @@
         </div>
     </section>
 
-    {{-- ── Quick Actions ──────────────────────────────────────────── --}}
-    <section id="features" class="pt-8 pb-6">
+    {{-- ── How It Works (first thing after the headline) ─────────── --}}
+    <section id="steps" class="pt-8 pb-6">
         <div class="{{ $shell }}">
+            <div class="bg-white dark:bg-[#18241f] border border-gray-200 dark:border-white/10 rounded-xl p-5 sm:p-6">
+                <p class="text-[10px] font-bold text-[#1D9E75] uppercase tracking-widest mb-1">Start here</p>
+                <h2 class="text-lg font-black text-gray-900 mb-1">Three steps</h2>
+                <p class="text-xs text-gray-500 mb-4">Sign up first. Then you can do these.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    @foreach ($steps as $s)
+                        <div class="bg-gray-50 dark:bg-white/[0.05] rounded-lg p-3">
+                            <p class="text-2xl font-black text-[#1D9E75]/30 leading-none mb-1">{{ $s['n'] }}</p>
+                            <h3 class="text-sm font-bold text-gray-900 mb-1">{{ $s['title'] }}</h3>
+                            <p class="text-xs text-gray-500 leading-snug">{{ $s['desc'] }}</p>
+                        </div>
+                    @endforeach
+                </div>
+                <button type="button" @click="openWalkthrough()" class="mt-5 inline-flex items-center gap-2 bg-[#1D9E75] hover:bg-[#178F65] text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors">
+                    Get Started <x-lucide-arrow-right class="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+    </section>
+
+    {{-- ── What you can do after signing up ──────────────────────── --}}
+    <section id="features" class="pb-6">
+        <div class="{{ $shell }}">
+            <p class="text-xs font-semibold text-gray-700 mb-2">After you sign up, you can:</p>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
                 @foreach ($quickActions as $item)
-                    <button type="button" @click="openWalkthrough()" class="group text-left bg-white dark:bg-[#18241f] border border-gray-200 dark:border-white/10 hover:border-[#1D9E75]/50 rounded-lg px-3 py-2.5 transition-colors hover:shadow-sm">
-                        <div class="w-7 h-7 bg-green-50 dark:bg-white/5 rounded-md flex items-center justify-center mb-1.5 group-hover:bg-green-100 dark:group-hover:bg-white/10 transition-colors">
+                    <div class="text-left bg-white dark:bg-[#18241f] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2.5">
+                        <div class="w-7 h-7 bg-green-50 dark:bg-white/5 rounded-md flex items-center justify-center mb-1.5">
                             <x-dynamic-component :component="'lucide-'.$item['icon']" class="w-3.5 h-3.5 text-[#1D9E75]" />
                         </div>
                         <h3 class="text-xs font-bold text-gray-900 leading-tight">{{ $item['title'] }}</h3>
                         <p class="text-[11px] text-gray-500 leading-snug mt-0.5">{{ $item['desc'] }}</p>
-                    </button>
+                    </div>
                 @endforeach
             </div>
         </div>
@@ -197,9 +224,9 @@
                     <x-lucide-shield-check class="w-4 h-4 text-[#1D9E75]" />
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h2 class="text-sm font-bold text-gray-900 mb-0.5">Protected &amp; confidential records</h2>
+                    <h2 class="text-sm font-bold text-gray-900 mb-0.5">Your complaint stays private</h2>
                     <p class="text-xs text-gray-500 leading-relaxed">
-                        All complaints handled under RA 11313 &amp; RA 7877. End-to-end encrypted with anonymous filing options — your identity is never disclosed without consent.
+                        The school office handles it. Your name is not shown to the other person unless you agree.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-4 flex-shrink-0">
@@ -207,25 +234,6 @@
                         <span class="flex items-center gap-1.5 text-xs font-medium text-gray-600">
                             <x-dynamic-component :component="'lucide-'.$t['icon']" class="w-3.5 h-3.5 text-[#1D9E75]" /> {{ $t['label'] }}
                         </span>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ── How It Works ───────────────────────────────────────────── --}}
-    <section class="pb-6">
-        <div class="{{ $shell }}">
-            <div class="bg-white dark:bg-[#18241f] border border-gray-200 dark:border-white/10 rounded-xl p-5 sm:p-6">
-                <p class="text-[10px] font-bold text-[#1D9E75] uppercase tracking-widest mb-1">Process</p>
-                <h2 class="text-lg font-black text-gray-900 mb-4">Three steps to resolution</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    @foreach ($steps as $s)
-                        <div class="bg-gray-50 dark:bg-white/[0.05] rounded-lg p-3">
-                            <p class="text-2xl font-black text-[#1D9E75]/30 leading-none mb-1">{{ $s['n'] }}</p>
-                            <h3 class="text-sm font-bold text-gray-900 mb-1">{{ $s['title'] }}</h3>
-                            <p class="text-xs text-gray-500 leading-snug">{{ $s['desc'] }}</p>
-                        </div>
                     @endforeach
                 </div>
             </div>
@@ -244,14 +252,14 @@
                             Every student deserves to be <span class="text-[#1D9E75]">heard.</span>
                         </h2>
                         <p class="text-xs text-gray-500 leading-relaxed">
-                            SpeakUp GC empowers Gordon College students with a safe, confidential channel to raise concerns under the Safe Spaces Act (RA 11313) and Anti-Sexual Harassment Act (RA 7877). We bridge the gap between students and DEIU — ensuring every complaint is heard, tracked, and resolved with care.
+                            SpeakUp GC is a private way for Gordon College students to tell the school office what happened. Every complaint is read, tracked, and handled with care. The details of the law are in the section below.
                         </p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2">
                         @foreach ([
-                            ['icon' => 'lock', 'title' => 'Secure & Private', 'desc' => 'End-to-end encryption with anonymous filing.'],
-                            ['icon' => 'headphones', 'title' => 'DEIU-Backed Support', 'desc' => 'Trained administrators guide every step.'],
-                            ['icon' => 'graduation-cap', 'title' => 'Know Your Rights', 'desc' => 'Resources on RA 11313, RA 7877, and policies.'],
+                            ['icon' => 'lock', 'title' => 'Private', 'desc' => 'You can file with your name hidden.'],
+                            ['icon' => 'headphones', 'title' => 'School office', 'desc' => 'A staff member guides each step.'],
+                            ['icon' => 'graduation-cap', 'title' => 'Know your rights', 'desc' => 'Plain guides on the school rules and the law.'],
                         ] as $item)
                             <div class="flex items-center gap-3 bg-gray-50 dark:bg-white/[0.05] rounded-lg p-3">
                                 <div class="w-8 h-8 bg-white dark:bg-[#1c2a24] border border-gray-200 dark:border-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -301,8 +309,8 @@
                 <div class="flex items-center gap-3">
                     <x-lucide-lock class="w-5 h-5 text-[#1D9E75]" />
                     <div>
-                        <p class="text-sm font-bold text-gray-900">Sign in to access the full knowledge base</p>
-                        <p class="text-xs text-gray-500">Complete guides, policies, FAQs, and step-by-step procedures</p>
+                        <p class="text-sm font-bold text-gray-900">Sign in to read the full guides</p>
+                        <p class="text-xs text-gray-500">Policies, common questions, and what to do next</p>
                     </div>
                 </div>
                 <a href="/?auth=login" @click.prevent="openWalkthrough('login')" class="inline-flex items-center gap-1.5 px-5 py-2 bg-[#1D9E75] hover:bg-[#178F65] text-white text-sm font-medium rounded-xl transition-colors flex-shrink-0">
@@ -321,14 +329,14 @@
                     <div class="min-w-0">
                         <span class="font-bold text-gray-900 text-sm block">SpeakUp GC</span>
                         <p class="text-xs text-gray-500 leading-relaxed">
-                            A confidential platform for Gordon College students to file complaints and communicate with DEIU.
+                            A private place for Gordon College students to file a complaint and talk with the school office.
                         </p>
                     </div>
                 </div>
                 <div class="flex-shrink-0">
                     <h4 class="text-xs font-bold text-gray-900 mb-2 sm:text-right">Quick Links</h4>
                     <ul class="flex flex-wrap gap-x-4 gap-y-1 sm:justify-end">
-                        <li><a href="/#features" class="text-xs text-gray-500 hover:text-[#1D9E75] whitespace-nowrap">Features</a></li>
+                        <li><a href="/#steps" class="text-xs text-gray-500 hover:text-[#1D9E75] whitespace-nowrap">How it works</a></li>
                         <li><a href="/#about" class="text-xs text-gray-500 hover:text-[#1D9E75] whitespace-nowrap">About</a></li>
                         <li><a href="/privacy" class="text-xs text-gray-500 hover:text-[#1D9E75] whitespace-nowrap">Privacy Policy</a></li>
                         <li><a href="/terms" class="text-xs text-gray-500 hover:text-[#1D9E75] whitespace-nowrap">Terms &amp; Conditions</a></li>

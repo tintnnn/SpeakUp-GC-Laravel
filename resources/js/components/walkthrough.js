@@ -112,6 +112,7 @@ export function walkthroughModal() {
 
         loginData: { email: '', password: '' },
         showLoginPassword: false,
+        needsVerification: false,
         isLoginLoading: false,
         isGoogleLoading: false,
 
@@ -141,7 +142,7 @@ export function walkthroughModal() {
             this.direction = 'forward';
             document.body.style.overflow = 'hidden';
             this.$watch('view', (v) => {
-                if (v === 'signup-done') this.startCooldown(60);
+                if (v === 'signup-done' && this.verificationEmailSent) this.startCooldown(60);
             });
         },
 
@@ -183,12 +184,19 @@ export function walkthroughModal() {
                 return;
             }
             this.isLoginLoading = true;
+            this.needsVerification = false;
             try {
                 const res = await api('/login', { body: { email: this.loginData.email, password: this.loginData.password } });
                 window.toast({ title: 'Login Successful', description: 'Welcome back! Redirecting...' });
                 this.finishRedirect(res?.redirect);
             } catch (error) {
-                window.toast({ title: 'Login failed', description: errorMessage(error, 'Invalid email or password. Please try again.'), variant: 'destructive' });
+                const message = errorMessage(error, 'Invalid email or password. Please try again.');
+                if (message.includes('verify your email')) {
+                    this.needsVerification = true;
+                    window.toast({ title: 'Email not verified', description: 'Your account is saved. Use Resend verification email below.', variant: 'destructive' });
+                } else {
+                    window.toast({ title: 'Login failed', description: message, variant: 'destructive' });
+                }
                 this.isLoginLoading = false;
             }
         },
@@ -240,7 +248,12 @@ export function walkthroughModal() {
                           : 'Account created, but verification could not be completed. Try Resend Email.',
                 });
             } catch (error) {
-                window.toast({ title: 'Error', description: errorMessage(error, 'Failed to create account.'), variant: 'destructive' });
+                const message = errorMessage(error, 'Failed to create account.');
+                if (message.includes('already registered')) {
+                    const recovered = await this.recoverUnverifiedSignup();
+                    if (recovered) return;
+                }
+                window.toast({ title: 'Error', description: message, variant: 'destructive' });
             } finally {
                 this.isSignupLoading = false;
             }
@@ -249,6 +262,64 @@ export function walkthroughModal() {
         async handleGoogleSignup() {
             this.isSignupGoogleLoading = true;
             window.location.assign('/auth/google/redirect?intent=signup');
+        },
+
+        async recoverUnverifiedSignup() {
+            try {
+                const sent = await api('/email/resend', { body: { email: this.signupData.email, password: this.signupData.password } });
+                if (sent.alreadyVerified) {
+                    this.loginData.email = this.signupData.email;
+                    this.loginData.password = this.signupData.password;
+                    this.goTo('login');
+                    window.toast({ title: 'Already verified', description: 'This email is already registered. Sign in with the same password.', variant: 'destructive' });
+                    return true;
+                }
+                this.verificationEmailSent = !!sent.emailed;
+                this.verificationLink = null;
+                this.goTo('signup-done');
+                window.toast({
+                    title: sent.emailed ? 'Verification sent' : 'Account already exists',
+                    description: sent.emailed
+                        ? 'This email was already registered. A new verification link is in your inbox. Check spam too.'
+                        : 'This email is registered but not verified yet. Use Resend Email below.',
+                    variant: sent.emailed ? 'default' : 'destructive',
+                });
+                return true;
+            } catch {
+                return false;
+            }
+        },
+
+        async resendFromLogin() {
+            if (this.resendCooldown > 0) return;
+            if (!this.loginData.email || !this.loginData.password) {
+                window.toast({ title: 'Missing fields', description: 'Enter the email and password you used when you signed up.', variant: 'destructive' });
+                return;
+            }
+            this.isLoginLoading = true;
+            try {
+                const sent = await api('/email/resend', { body: { email: this.loginData.email, password: this.loginData.password } });
+                if (sent.alreadyVerified) {
+                    this.needsVerification = false;
+                    window.toast({ title: 'Already verified', description: 'You can sign in now.' });
+                    return;
+                }
+                if (sent.emailed) {
+                    this.signupData.email = this.loginData.email;
+                    this.signupData.password = this.loginData.password;
+                    this.verificationEmailSent = true;
+                    this.verificationLink = null;
+                    this.needsVerification = false;
+                    this.goTo('signup-done');
+                    window.toast({ title: 'Verification sent', description: 'Check your inbox and spam folder, then click the link.' });
+                    return;
+                }
+                window.toast({ title: 'Resend failed', description: 'Could not send the verification email. Please try again in a few minutes.', variant: 'destructive' });
+            } catch (err) {
+                window.toast({ title: 'Resend failed', description: errorMessage(err, 'Could not resend verification email. Please try again.'), variant: 'destructive' });
+            } finally {
+                this.isLoginLoading = false;
+            }
         },
 
         async checkVerification() {

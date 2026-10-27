@@ -347,7 +347,7 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <button type="button" class="inline-flex h-10 items-center justify-start rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-accent"><x-lucide-file-text class="mr-2 h-4 w-4" /> PDF Only</button>
-                <button type="button" class="inline-flex h-10 items-center justify-start rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-accent"><x-lucide-file-text class="mr-2 h-4 w-4" /> CSV Only</button>
+                <a href="/admin/compliance-reports/export" class="inline-flex h-10 items-center justify-start rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-accent"><x-lucide-file-text class="mr-2 h-4 w-4" /> CSV Only</a>
                 <button type="button" class="inline-flex h-10 items-center justify-start rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-accent"><x-lucide-file-text class="mr-2 h-4 w-4" /> JSON Only</button>
                 <button type="button" disabled class="inline-flex h-10 cursor-not-allowed items-center justify-start rounded-md border border-input bg-background px-4 text-sm font-medium opacity-50"><x-lucide-file-text class="mr-2 h-4 w-4" /> Excel (Soon)</button>
             </div>

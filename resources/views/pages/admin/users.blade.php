@@ -171,6 +171,7 @@
                                 }
                             }
                             $payload = [
+                                'id' => (int) data_get($row, 'id'),
                                 'alias' => $hasAlias ? (string) $alias : ($displayName !== '' ? $displayName : 'N/A'),
                                 'confirmAlias' => $hasAlias ? (string) $alias : ($displayName !== '' ? $displayName : (string) data_get($row, 'id', data_get($row, 'uid', ''))),
                                 'email' => $maskedEmail,
@@ -355,25 +356,30 @@
             <h2 class="text-lg font-semibold leading-none tracking-tight">Assign Representative Role</h2>
             <p class="text-sm text-muted-foreground">Assign a role to <span x-text="selected?.alias"></span> (<span x-text="selected?.email"></span>). This user will be moved to the Representatives page.</p>
         </div>
-        <div class="space-y-4 py-4">
-            <div>
-                <label for="role" class="text-sm font-medium leading-none">Role *</label>
-                <select id="role" x-model="role" class="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                    <option value="">Select a role</option>
-                    <option value="handler">CODI member</option>
-                    <option value="admin">Administrator</option>
-                </select>
-                <p class="text-xs text-gray-500 mt-1" x-text="role === 'handler' ? '⚙️ Can be assigned to process complaints' : (role === 'admin' ? '🔧 Full administrative access' : 'Select a role')"></p>
+        <form method="POST" :action="'/admin/users/' + (selected?.id || '') + '/assign'">
+            @csrf
+            <div class="space-y-4 py-4">
+                <div>
+                    <label for="role" class="text-sm font-medium leading-none">Role *</label>
+                    <select id="role" name="role" x-model="role" required class="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                        <option value="">Select a role</option>
+                        <option value="handler">CODI member</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1" x-text="role === 'handler' ? '⚙️ Can be assigned to process complaints' : (role === 'admin' ? '🔧 Full administrative access' : 'Select a role')"></p>
+                </div>
             </div>
-        </div>
-        <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-            <button type="button" class="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-accent" @click="assignOpen = false">Cancel</button>
-            <button type="button" class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90" @click="assignOpen = false">Assign Role</button>
-        </div>
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+                <button type="button" class="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-accent" @click="assignOpen = false">Cancel</button>
+                <button type="submit" class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90" :disabled="role === ''" :class="role === '' ? 'opacity-50 cursor-not-allowed' : ''">Assign Role</button>
+            </div>
+        </form>
     </div>
 
     <div x-show="deleteOpen" x-cloak class="fixed inset-0 z-50 bg-black/80" @keydown.escape.window="deleteOpen = false"></div>
-    <div x-show="deleteOpen" x-cloak class="fixed left-1/2 top-1/2 z-50 grid w-full max-w-[500px] -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" @click.outside="deleteOpen = false">
+    <form method="POST" :action="'/admin/users/' + (selected?.id || '')" x-show="deleteOpen" x-cloak class="fixed left-1/2 top-1/2 z-50 grid w-full max-w-[500px] -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" @click.outside="deleteOpen = false">
+        @csrf
+        @method('DELETE')
         <div class="flex flex-col space-y-1.5 text-center sm:text-left">
             <div class="flex items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-red-100">
@@ -413,8 +419,8 @@
         </div>
         <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button type="button" class="inline-flex h-10 items-center justify-center rounded-md border border-gray-300 bg-background px-4 text-sm font-medium hover:bg-gray-50" @click="confirmText = ''; deleteOpen = false">Cancel</button>
-            <button type="button" class="inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium" :disabled="confirmText !== (selected?.confirmAlias || '')" :class="confirmText === (selected?.confirmAlias || '') ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-200 text-red-400 cursor-not-allowed'" @click="deleteOpen = false">Delete user</button>
+            <button type="submit" class="inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium" :disabled="confirmText !== (selected?.confirmAlias || '')" :class="confirmText === (selected?.confirmAlias || '') ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-200 text-red-400 cursor-not-allowed'">Delete user</button>
         </div>
-    </div>
+    </form>
 </div>
 </x-layouts.admin>

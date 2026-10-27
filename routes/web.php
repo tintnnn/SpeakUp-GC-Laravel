@@ -393,10 +393,6 @@ Route::middleware(['auth', 'staff'])->group(function () {
     Route::put('/admin/locations/{location}', [ManageController::class, 'updateLocation'])->name('admin.locations.update');
     Route::delete('/admin/locations/{location}', [ManageController::class, 'destroyLocation'])->name('admin.locations.destroy');
 
-    Route::post('/admin/content-library', [ManageController::class, 'storeVideo'])->name('admin.content.store');
-    Route::put('/admin/content-library/{video}', [ManageController::class, 'updateVideo'])->name('admin.content.update');
-    Route::delete('/admin/content-library/{video}', [ManageController::class, 'destroyVideo'])->name('admin.content.destroy');
-
     Route::post('/admin/settings', [ManageController::class, 'saveSettings'])->name('admin.settings.save');
 
     Route::get('/admin/representatives', function () {
@@ -406,22 +402,22 @@ Route::middleware(['auth', 'staff'])->group(function () {
     })->name('admin.representatives');
 
     Route::get('/admin/users', function () {
-        $rows = User::query()->withCount(['complaints as reports_count'])->orderBy('email')->get();
+        $rows = User::query()
+            ->where('is_deleted', false)
+            ->withCount(['complaints as reports_count'])
+            ->orderBy('email')
+            ->get();
 
         return view('pages.admin.users', ['users' => $rows, 'rows' => $rows, 'title' => 'Users']);
     })->name('admin.users');
 
-    Route::view('/admin/settings', 'pages.admin.settings')->name('admin.settings');
+    Route::get('/admin/settings', [ManageController::class, 'settings'])->name('admin.settings');
+    Route::post('/admin/settings/password', [ManageController::class, 'updatePassword'])->name('admin.settings.password');
     Route::get('/admin/locations', function () {
         $rows = DB::table('locations')->orderBy('name')->get();
 
         return view('pages.admin.locations', ['rows' => $rows, 'title' => 'Locations']);
     })->name('admin.locations');
-    Route::get('/admin/content-library', function () {
-        $rows = DB::table('mental_health_videos')->orderBy('title')->get();
-
-        return view('pages.admin.content-library', ['rows' => $rows, 'title' => 'Content Library']);
-    })->name('admin.content-library');
 });
 
 Route::fallback(fn () => response()->view('errors.404', [], 404));

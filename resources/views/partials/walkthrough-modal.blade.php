@@ -101,6 +101,15 @@
                                 <template x-if="isLoginLoading"><span class="contents"><x-lucide-loader class="animate-spin h-4 w-4" /> Logging in…</span></template>
                                 <template x-if="!isLoginLoading"><span>Log In</span></template>
                             </button>
+
+                            <div x-show="needsVerification" x-cloak class="rounded-xl p-3 text-left" :style="{ background: colors.warningBg, border: `1px solid ${colors.warningBorder}` }">
+                                <p class="text-sm font-semibold" :style="{ color: colors.warningText }">Email not verified yet</p>
+                                <p class="mt-1 text-xs" :style="{ color: colors.warningMuted }">Your account is saved. Send the link again, then open it from your inbox or spam folder.</p>
+                                <button type="button" @click="resendFromLogin()" :disabled="isLoginLoading || resendCooldown > 0"
+                                    class="mt-2 h-9 w-full rounded-lg text-xs font-semibold text-white disabled:opacity-50"
+                                    :style="{ background: colors.primary }"
+                                    x-text="resendCooldown > 0 ? `Resend Email (${resendCooldown}s)` : 'Resend verification email'"></button>
+                            </div>
                         </form>
 
                         @if ($googleSignInEnabled)
@@ -287,14 +296,14 @@
                             <button type="button" @click="window.location.assign(verificationLink)" class="w-full h-11 text-white font-medium text-sm rounded-lg transition-colors" :style="{ background: colors.primary }">Verify now</button>
                         </template>
 
-                        <div class="flex flex-col sm:flex-row gap-2">
+                        <div class="flex flex-row gap-2">
                             <button type="button" @click="checkVerification()" :disabled="isSignupLoading"
-                                class="flex-1 h-10 text-white font-medium text-sm rounded-lg transition-colors disabled:opacity-50"
+                                class="min-w-0 flex-1 h-10 px-2 text-white font-medium text-xs sm:text-sm rounded-lg transition-colors disabled:opacity-50"
                                 :style="{ background: hover.check && !isSignupLoading ? colors.primaryHover : colors.primary }"
                                 @mouseenter="hover.check = true" @mouseleave="hover.check = false"
                                 x-text="isSignupLoading ? 'Checking…' : 'Check Verification'"></button>
                             <button type="button" @click="resendVerification()" :disabled="isSignupLoading || resendCooldown > 0"
-                                class="flex-1 h-10 font-medium text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="min-w-0 flex-1 h-10 px-2 font-medium text-xs sm:text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 :style="{ background: colors.cardBg, border: `1px solid ${colors.cardBorder}`, color: colors.body }"
                                 x-text="resendCooldown > 0 ? `Resend Email (${resendCooldown}s)` : 'Resend Email'"></button>
                         </div>

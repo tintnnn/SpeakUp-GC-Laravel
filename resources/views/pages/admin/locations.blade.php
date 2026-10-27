@@ -102,9 +102,13 @@
                         <button type="button" class="inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium hover:bg-accent" @click="openEdit(@js($payload))">
                             <x-lucide-pencil class="h-4 w-4" />
                         </button>
-                        <button type="button" class="inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700" @click="if (confirm('Are you sure you want to delete this location?')) { $el.closest('[data-location]').remove(); recount(); }">
-                            <x-lucide-trash-2 class="h-4 w-4" />
-                        </button>
+                        <form method="POST" action="/admin/locations/{{ data_get($row, 'id') }}" onsubmit="return confirm('Are you sure you want to delete this location?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700">
+                                <x-lucide-trash-2 class="h-4 w-4" />
+                            </button>
+                        </form>
                     </div>
                 </div>
                 @if ($loop->last)
@@ -138,15 +142,17 @@
             <h2 class="text-lg font-semibold leading-none tracking-tight" x-text="editing ? 'Edit Location' : 'Add New Location'"></h2>
             <p class="text-sm text-muted-foreground" x-text="editing ? 'Update the location details below' : 'Add a new location to the system'"></p>
         </div>
-        <form @submit.prevent="close()">
+        <form method="POST" :action="editing ? '/admin/locations/' + form.id : '/admin/locations'">
+            @csrf
+            <input type="hidden" name="_method" :value="editing ? 'PUT' : 'POST'">
             <div class="space-y-4 py-4">
                 <div>
                     <label for="name" class="text-sm font-medium leading-none">Location Name *</label>
-                    <input id="name" type="text" x-model="form.name" placeholder="e.g., Room 101, Main Building, Library" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <input id="name" name="name" type="text" required x-model="form.name" placeholder="e.g., Room 101, Main Building, Library" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 </div>
                 <div>
                     <label for="category" class="text-sm font-medium leading-none">Category *</label>
-                    <select id="category" x-model="form.category" class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-[#1D9E75] dark:border-border dark:bg-card dark:text-foreground">
+                    <select id="category" name="category" required x-model="form.category" class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-[#1D9E75] dark:border-border dark:bg-card dark:text-foreground">
                         <option value="">Select category</option>
                         @foreach (['Room', 'Building', 'Department', 'Common Area', 'Other'] as $cat)
                             <option value="{{ $cat }}">{{ $cat }}</option>

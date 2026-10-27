@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\SpeakUp;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,10 @@ class RedirectStaff
     {
         if ($request->user()?->isStaff()) {
             return redirect('/admin/dashboard');
+        }
+
+        if ($request->isMethod('GET') && SpeakUp::flag('maintenance_mode')) {
+            return response()->view('pages.maintenance');
         }
 
         return $next($request);

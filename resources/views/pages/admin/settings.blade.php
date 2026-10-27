@@ -3,7 +3,7 @@
 @php
     $user = auth()->user();
     $provider = $user?->provider ?? 'password';
-    $isPasswordAccount = ! $user || $provider === '' || $provider === 'password';
+    $isPasswordAccount = $provider !== 'google';
     $isAdmin = true;
     if ($user) {
         $repRole = $user->representative?->role;
@@ -72,18 +72,25 @@
         </div>
         <div class="space-y-4 p-6 pt-0">
             @if ($isPasswordAccount)
-                <form class="space-y-4" @submit.prevent>
+                <form method="POST" action="/admin/settings/password" class="space-y-4">
+                    @csrf
                     <div>
                         <label for="current-password" class="text-sm font-medium leading-none">Current Password</label>
-                        <input id="current-password" type="password" autocomplete="current-password" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        <input id="current-password" name="current_password" type="password" required autocomplete="current-password" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        @error('current_password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="new-password" class="text-sm font-medium leading-none">New Password</label>
-                        <input id="new-password" type="password" autocomplete="new-password" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        <input id="new-password" name="password" type="password" required autocomplete="new-password" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="confirm-password" class="text-sm font-medium leading-none">Confirm New Password</label>
-                        <input id="confirm-password" type="password" autocomplete="new-password" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        <input id="confirm-password" name="password_confirmation" type="password" required autocomplete="new-password" class="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     </div>
                     <button type="submit" class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">Update Password</button>
                 </form>
@@ -104,13 +111,16 @@
             </h3>
             <p class="text-sm text-muted-foreground">Configure system-wide settings and defaults</p>
         </div>
-        <div class="space-y-4 p-6 pt-0">
+        <form method="POST" action="/admin/settings" class="space-y-4 p-6 pt-0" x-ref="prefs">
+            @csrf
+            <input type="hidden" name="maintenance_mode" :value="maintenance ? 1 : 0">
+            <input type="hidden" name="chatbot_enabled" :value="chatbot ? 1 : 0">
             <div class="flex items-center justify-between">
                 <div>
                     <label for="maintenance-mode" class="text-sm font-medium leading-none">Maintenance Mode</label>
                     <p class="text-sm text-gray-500">Temporarily disable user access</p>
                 </div>
-                <button id="maintenance-mode" type="button" role="switch" :aria-checked="maintenance" @click="maintenance = !maintenance" class="inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors" :class="maintenance ? 'bg-primary' : 'bg-input'">
+                <button id="maintenance-mode" type="button" role="switch" :aria-checked="maintenance" @click="maintenance = !maintenance; $nextTick(() => $refs.prefs.submit())" class="inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors" :class="maintenance ? 'bg-primary' : 'bg-input'">
                     <span class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg transition-transform" :class="maintenance ? 'translate-x-5' : 'translate-x-0'"></span>
                 </button>
             </div>
@@ -134,12 +144,12 @@
                             <p class="text-sm text-gray-500">Allow complainants to use the virtual assistant (Laya) for FAQs and case status inquiries.</p>
                         </div>
                     </div>
-                    <button id="chatbot-enabled" type="button" role="switch" :aria-checked="chatbot" @click="chatbot = !chatbot" class="inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors" :class="chatbot ? 'bg-primary' : 'bg-input'">
+                    <button id="chatbot-enabled" type="button" role="switch" :aria-checked="chatbot" @click="chatbot = !chatbot; $nextTick(() => $refs.prefs.submit())" class="inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors" :class="chatbot ? 'bg-primary' : 'bg-input'">
                         <span class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg transition-transform" :class="chatbot ? 'translate-x-5' : 'translate-x-0'"></span>
                     </button>
                 </div>
             @endif
-        </div>
+        </form>
     </div>
 
     <div class="rounded-lg border bg-card text-card-foreground shadow-sm">

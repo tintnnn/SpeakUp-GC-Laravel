@@ -6,6 +6,7 @@ use App\Models\Complaint;
 use App\Models\Notification;
 use App\Models\Representative;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class SpeakUp
 {
@@ -80,6 +81,20 @@ class SpeakUp
         }
 
         return $base.'('.$n.')';
+    }
+
+    public static function flag(string $key, bool $default = false): bool
+    {
+        $value = DB::table('system_settings')->where('key', $key)->value('value');
+        if ($value === null) {
+            return $default;
+        }
+        if (is_bool($value)) {
+            return $value;
+        }
+        $decoded = json_decode((string) $value, true);
+
+        return (bool) ($decoded ?? $value);
     }
 
     /** In-app alert for admins and CODI when a complaint is filed. */

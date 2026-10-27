@@ -221,6 +221,14 @@
         selectedId: @js(request('report') ? (int) request('report') : null),
         detailTab: @js(request('tab') === 'notes' ? 'notes' : (request('tab') === 'evidence' ? 'evidence' : (request('tab') === 'activity' ? 'activity' : 'details'))),
         exportOpen: false,
+        escalate: null,
+        escalateReason: '',
+        escalateNotes: '',
+        openEscalate(id, number) {
+            this.escalate = { id, number };
+            this.escalateReason = '';
+            this.escalateNotes = '';
+        },
         onlyMine: @js($onlyMine),
         takeId: null,
         takeNumber: '',
@@ -553,7 +561,7 @@
                                         <span>Summary</span>
                                     </button>
                                     @if ($isAdmin)
-                                        <button type="button" title="Escalate Case" @click="selectedId = {{ (int) $row['id'] }}; detailTab = 'details'" class="{{ $outlineBtn }} {{ $row['escalation'] > 0 ? 'text-orange-600 hover:bg-orange-50' : 'text-gray-600 hover:bg-gray-50' }}">
+                                        <button type="button" title="Escalate Case" @click="openEscalate({{ (int) $row['id'] }}, @js($row['caseNumber']))" class="{{ $outlineBtn }} {{ $row['escalation'] > 0 ? 'text-orange-600 hover:bg-orange-50' : 'text-gray-600 hover:bg-gray-50' }}">
                                             <x-lucide-triangle-alert class="h-4 w-4 shrink-0" />
                                             <span>Escalate</span>
                                         </button>
@@ -982,13 +990,38 @@
         </div>
     </div>
 
+    @if ($isAdmin)
+        <div x-show="escalate" x-cloak class="fixed inset-0 flex items-center justify-center bg-black/40 p-4" style="z-index: 80" @keydown.escape.window="escalate = null">
+            <form method="POST" :action="escalate ? '/admin/reports/' + escalate.id + '/escalate' : ''" class="w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 shadow-lg" @click.outside="escalate = null">
+                @csrf
+                <h2 class="text-lg font-semibold text-gray-900">Escalate case</h2>
+                <p class="mt-1 text-sm text-gray-500">Raise <span class="font-medium text-gray-900" x-text="escalate?.number"></span> by one level.</p>
+                <label for="escalate-reason" class="mt-4 block text-sm font-medium text-gray-900">Reason *</label>
+                <select id="escalate-reason" name="reason" required x-model="escalateReason" class="mt-1 flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm">
+                    <option value="">Select a reason</option>
+                    <option>Time-sensitive case</option>
+                    <option>High severity incident</option>
+                    <option>Multiple complaints</option>
+                    <option>Student safety concern</option>
+                    <option>Legal requirements</option>
+                </select>
+                <label for="escalate-notes" class="mt-3 block text-sm font-medium text-gray-900">Additional notes</label>
+                <textarea id="escalate-notes" name="notes" x-model="escalateNotes" rows="3" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm" placeholder="Optional"></textarea>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button type="button" @click="escalate = null" class="{{ $outlineBtn }}">Cancel</button>
+                    <button type="submit" class="inline-flex h-9 items-center rounded-md bg-[#1D9E75] px-4 text-sm font-medium text-white hover:bg-[#178F65]" :disabled="escalateReason === ''">Escalate</button>
+                </div>
+            </form>
+        </div>
+    @endif
+
     @unless ($isHandler)
         <div x-show="exportOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="exportOpen = false">
             <div class="w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 shadow-lg" @click.outside="exportOpen = false">
-                <h2 class="text-lg font-semibold text-gray-900">Export Reports to PDF</h2>
-                <p class="mt-1 text-sm text-gray-500">Export <span x-text="visibleCount"></span> report<span x-show="visibleCount !== 1">s</span> with the current filters applied.</p>
+                <h2 class="text-lg font-semibold text-gray-900">Export Reports</h2>
+                <p class="mt-1 text-sm text-gray-500">Download the current case list as a CSV file.</p>
                 <div class="py-4">
-                    <p class="text-sm text-gray-600">The PDF will include all visible reports in a compact, professional format with:</p>
+                    <p class="text-sm text-gray-600">The CSV includes:</p>
                     <ul class="mt-2 space-y-1 text-sm text-gray-600 list-disc list-inside">
                         <li>Report ID, Title, and Category</li>
                         <li>Status and Complainant information</li>
@@ -998,10 +1031,10 @@
                 </div>
                 <div class="flex justify-end gap-2">
                     <button type="button" @click="exportOpen = false" class="{{ $outlineBtn }}">Cancel</button>
-                    <button type="button" class="inline-flex items-center gap-2 rounded-md bg-[#1D9E75] px-3 py-2 text-sm font-medium text-white hover:bg-[#178F65]">
+                    <a href="/admin/reports/export" class="inline-flex items-center gap-2 rounded-md bg-[#1D9E75] px-3 py-2 text-sm font-medium text-white hover:bg-[#178F65]">
                         <x-lucide-download class="h-4 w-4" />
-                        Export PDF
-                    </button>
+                        Export CSV
+                    </a>
                 </div>
             </div>
         </div>
